@@ -11,7 +11,7 @@ namespace cuttlebone {
 
 template <unsigned SIZE> struct Packet {
   struct Header {
-    unsigned frameNumber, partNumber, partSize, totalPartCount;
+    unsigned frameNumber{0}, partNumber{0}, partSize{0}, totalPartCount{0};
   };
   enum {
     HEADER_SIZE = sizeof(Header),
@@ -73,7 +73,7 @@ template <typename STATE, typename PACKET> struct PacketTaker {
     for (unsigned i = 0; i < TOTAL_PART_COUNT; ++i)
       if (part[i] == 0)
         missing++;
-    string report;
+    std::string report;
     report += to_string(missing);
     report += " missing from frame ";
     report += to_string(frameNumber);
@@ -90,11 +90,15 @@ template <typename STATE, typename PACKET> struct PacketTaker {
     if (packet.header.frameNumber != frameNumber)
       return false;
 
-    // XXX handle duplicate parts?
-
+      // XXX handle duplicate parts?
+#ifndef _WINDOWS
     memcpy((void *)(((unsigned long)&state) +
                     (packet.header.partNumber * PACKET::DATA_SIZE)),
            packet.byte, packet.header.partSize);
+#else
+    memcpy((void *)(&state + (packet.header.partNumber * PACKET::DATA_SIZE)),
+           packet.byte, packet.header.partSize);
+#endif
 
     part[packet.header.partNumber] = 1;
     return true;
