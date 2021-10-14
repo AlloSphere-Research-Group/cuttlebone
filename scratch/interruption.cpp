@@ -6,9 +6,13 @@
 //
 //
 
-#include <thread>
 #include <chrono>
+#include <thread>
+
+#ifndef _WINDOWS
 #include <unistd.h>
+#else
+#endif
 
 using namespace std;
 
@@ -20,7 +24,7 @@ using namespace cuttlebone;
 
 #define MAXIMUM (20)
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   using namespace std::chrono;
 
   int N = std::thread::hardware_concurrency();
@@ -37,7 +41,7 @@ int main(int argc, char* argv[]) {
     while (!done) {
       high_resolution_clock::time_point then = high_resolution_clock::now();
       high_resolution_clock::time_point now = high_resolution_clock::now();
-      double delta = duration_cast<duration<double> >(now - then).count();
+      double delta = duration_cast<duration<double>>(now - then).count();
       if (delta > max) {
         max = delta;
         LOG("%lf", max);
@@ -46,14 +50,17 @@ int main(int argc, char* argv[]) {
     result[i] = max;
   };
 
-  for (int i = 0; i < N; i++) t[i] = thread(test, i);
+  for (int i = 0; i < N; i++)
+    t[i] = thread(test, i);
   wait = false;
   getchar();
   done = true;
-  for (int i = 0; i < N; i++) t[i].join();
+  for (int i = 0; i < N; i++)
+    t[i].join();
 
   double max = 0.0;
   for (int i = 0; i < N; i++)
-    if (result[i] > max) max = result[i];
+    if (result[i] > max)
+      max = result[i];
   cout << max << endl;
 }

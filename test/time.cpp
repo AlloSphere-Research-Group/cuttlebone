@@ -1,6 +1,7 @@
 #include "Cuttlebone/Time.hpp"
-#include <iostream>  // cout, endl
-#include <unistd.h>  // usleep
+#include <chrono>
+#include <iostream> // cout, endl
+#include <thread>
 using namespace std;
 
 using namespace cuttlebone;
@@ -11,7 +12,7 @@ int main() {
   Stopwatch<> s;
   for (int i = 0; i < 100; ++i) {
     s.tic();
-    usleep(1000);
+    this_thread::sleep_for(std::chrono::microseconds(1000));
     cout << s.toc() << endl;
   }
 }

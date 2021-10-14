@@ -9,14 +9,15 @@ struct State {
 };
 
 int main() {
-  Taker<State, 64336> taker;
-  //Taker<State, 9184> taker;
+  Taker<State, 1200> taker;
+  // Taker<State, 9184> taker;
   taker.shouldLog = true;
-  State* state = new State;
+  State *state = new State;
   taker.start();
-printf("%d bytes\n", sizeof(State));
+  printf("%d bytes\n", sizeof(State));
   while (true) {
     int popCount = taker.get(*state);
-    if (popCount) LOG("got %d", state->frame);
+    if (popCount)
+      LOG("got %d", state->frame);
   }
 }

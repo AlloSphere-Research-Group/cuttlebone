@@ -1,19 +1,27 @@
 #ifndef __SELECTOR__
 #define __SELECTOR__
 
-#include <arpa/inet.h>  // struct sockaddr_in
-#include <unistd.h>     // sleep()
-#include <cstring>      // linux
-#include <cstdlib>      // linux
-#include <cstdio>       // linux
+#ifndef _WINDOWS
+#include <arpa/inet.h> // struct sockaddr_in
+#else
+#endif
+#include <cassert>
+#include <cstdio>  // linux
+#include <cstdlib> // linux
+#include <cstring> // linux
 #include <string>
 #include <thread>
-#include <cassert>
+
+#ifndef _WINDOWS
+#include <unistd.h> // sleep()
+#else
+#include <WS2tcpip.h>
+#include <WinSock2.h>
+#endif
 
 namespace cuttlebone {
 
-template <typename APP>
-struct Selector {
+template <typename APP> struct Selector {
   std::thread t;
   int packetSize, port;
   float timeOut;
@@ -50,7 +58,7 @@ struct Selector {
 
     // we need the :: to disambiguate between std::bind (c++11) socket.h bind
     //
-    if (::bind(fileDescriptor, (sockaddr*)&address, sizeof(sockaddr)) == -1) {
+    if (::bind(fileDescriptor, (sockaddr *)&address, sizeof(sockaddr)) == -1) {
       perror("bind");
       exit(-1);
     }
@@ -62,9 +70,10 @@ struct Selector {
 
       int seconds = (int)timeOut;
       int microseconds = (timeOut - (int)timeOut) * 1000000;
-      if (microseconds > 999999) microseconds = 999999;
+      if (microseconds > 999999)
+        microseconds = 999999;
 
-      struct timeval tv;  // = {0, timeOut};  // sec, usec
+      struct timeval tv; // = {0, timeOut};  // sec, usec
       tv.tv_sec = seconds;
       tv.tv_usec = microseconds;
       // printf("BEFORE: %ld, %ld\n", tv.tv_sec, tv.tv_usec);
@@ -79,14 +88,14 @@ struct Selector {
         printf("Timeout! Who cares?\n");
       } else {
         int bytesReceived =
-            recvfrom(fileDescriptor, static_cast<APP*>(this)->buffer,
+            recvfrom(fileDescriptor, (char *)static_cast<APP *>(this)->buffer,
                      packetSize, 0, 0, 0);
         if (bytesReceived == -1) {
           perror("recvfrom");
         } else if (bytesReceived != packetSize) {
           printf("Received less than expected\n");
         } else {
-          static_cast<APP*>(this)->onNewBuffer();
+          static_cast<APP *>(this)->onNewBuffer();
         }
       }
     }
@@ -98,6 +107,6 @@ struct Selector {
   }
 };
 
-}  // cuttlebone
+} // namespace cuttlebone
 
 #endif

@@ -1,14 +1,18 @@
-#include "Cuttlebone/Packet.hpp"
-#include "Cuttlebone/Checksum.hpp"
-#include "Cuttlebone/Time.hpp"
-#include "Cuttlebone/Receiver.hpp"
 #include "Cuttlebone/Broadcaster.hpp"
+#include "Cuttlebone/Checksum.hpp"
+#include "Cuttlebone/Packet.hpp"
 #include "Cuttlebone/Queue.hpp"
+#include "Cuttlebone/Receiver.hpp"
+#include "Cuttlebone/Time.hpp"
 
-#include <unistd.h>  // usleep
-#include <iostream>  // cout
-#include <thread>
+#ifndef _WINDOWS
+#include <unistd.h> // sleep()
+#else
+
+#endif
+#include <iostream> // cout
 #include <string.h>
+#include <thread>
 using namespace std;
 
 #define PACKET_SIZE (1400)
@@ -21,7 +25,7 @@ struct State {
   void zero() { memset(this, 0, sizeof(State)); }
 };
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   thread simulate, broadcast, receive, render;
 
   Queue<State> simulateBroadcast, receiveRender;
@@ -66,12 +70,12 @@ int main(int argc, char* argv[]) {
       usleep(1000);
 
     while (!done) {
-      if (simulateBroadcast.pop(state)) {  // XXX while() for greed
+      if (simulateBroadcast.pop(state)) { // XXX while() for greed
 
         // stopwatch.tic();
-        PacketMaker<State, Packet<PACKET_SIZE> > packetMaker(state, frame);
+        PacketMaker<State, Packet<PACKET_SIZE>> packetMaker(state, frame);
         while (packetMaker.fill(p))
-          broadcaster.send((unsigned char*)&p);
+          broadcaster.send((unsigned char *)&p);
         // printf("frame %u took %f seconds to broadcast\n", frame,
         // stopwatch.toc());
         frame++;
@@ -99,7 +103,7 @@ int main(int argc, char* argv[]) {
          p.header.frameNumber,
                      stopwatch.toc());
               */
-      if (!receiver.receive((unsigned char*)&p, PACKET_SIZE, 0.2f)) {
+      if (!receiver.receive((unsigned char *)&p, PACKET_SIZE, 0.2f)) {
         usleep(1000);
         continue;
       }
@@ -110,13 +114,13 @@ int main(int argc, char* argv[]) {
 
       // stopwatch.tic();
 
-      PacketTaker<State, Packet<PACKET_SIZE> > packetTaker(
-          state, p.header.frameNumber);
+      PacketTaker<State, Packet<PACKET_SIZE>> packetTaker(state,
+                                                          p.header.frameNumber);
 
       packetTaker.take(p);
 
       while (!packetTaker.isComplete()) {
-        if (receiver.receive((unsigned char*)&p, PACKET_SIZE, 0.2f)) {
+        if (receiver.receive((unsigned char *)&p, PACKET_SIZE, 0.2f)) {
           if (!packetTaker.take(p)) {
             // got a part from an unexpected frame before we finished this frame
             printf("lost frame\n");
@@ -130,8 +134,7 @@ int main(int argc, char* argv[]) {
       // we're all done, try to push
       if (!receiveRender.push(state))
         receiveRenderWasFull++;
-    ABORT_FRAME:
-      ;
+    ABORT_FRAME:;
     }
   });
 

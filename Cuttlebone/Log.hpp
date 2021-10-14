@@ -21,22 +21,26 @@ testing TBD...
 #define __LOG__
 
 // c++
-#include <chrono>
 #include <atomic>
+#include <chrono>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <queue>
 #include <thread>
-#include <mutex>
 #include <unordered_map>
 #include <vector>
 // c
 #include <cassert>
-#include <cstdio>
 #include <cstdarg>
+#include <cstdio>
 // system
+#ifndef _WINDOWS
 #include <unistd.h>
-using namespace std;
+#else
+
+#endif
+// using namespace std;
 
 #include "Cuttlebone/Queue.hpp"
 
@@ -45,20 +49,21 @@ using namespace std;
 #endif
 
 #ifdef DONT_COMPILE_LOG
-#define LOG(...) \
-  do {           \
+#define LOG(...)                                                               \
+  do {                                                                         \
   } while (0)
 #elif defined LOG_SIMPLE
-#define LOG(...)         \
-  do {                   \
-    printf(__VA_ARGS__); \
-    printf("\n");        \
-    fflush(stdout);      \
+#define LOG(...)                                                               \
+  do {                                                                         \
+    printf(__VA_ARGS__);                                                       \
+    printf("\n");                                                              \
+    fflush(stdout);                                                            \
   } while (0)
 #else
-#define LOG(...)                                                       \
-  do {                                                                 \
-    cuttlebone::Log<>::instance().report(std::this_thread::get_id(), __VA_ARGS__); \
+#define LOG(...)                                                               \
+  do {                                                                         \
+    cuttlebone::Log<>::instance().report(std::this_thread::get_id(),           \
+                                         __VA_ARGS__);                         \
   } while (0)
 #endif
 
@@ -74,22 +79,22 @@ struct Log {
   };
 
   struct CompareTime {
-    bool operator()(Report const& a, Report const& b) {
+    bool operator()(Report const &a, Report const &b) {
       return a.time > b.time;
     }
   };
 
   Queue<Report, QUEUE_SIZE> queue[NUMBER_OF_QUEUES];
   bool done;
-  thread t;
-  ofstream output;
-  priority_queue<Report, vector<Report>, CompareTime> priority;
-  chrono::high_resolution_clock::time_point logStartTime;
+  std::thread t;
+  std::ofstream output;
+  std::priority_queue<Report, std::vector<Report>, CompareTime> priority;
+  std::chrono::high_resolution_clock::time_point logStartTime;
   std::unordered_map<std::thread::id, int> queueThreadMap;
-  atomic<int> n;
-  mutex queueThreadMapMutex;
+  std::atomic<int> n;
+  std::mutex queueThreadMapMutex;
 
-  static Log& instance() {
+  static Log &instance() {
     static Log instance;
     return instance;
   }
@@ -100,36 +105,39 @@ struct Log {
 
     output.open(LOG_FILE);
     if (!output.is_open()) {
-      output.copyfmt(cout);
-      output.clear(cout.rdstate());
-      output.basic_ios<char>::rdbuf(cout.rdbuf());
+      output.copyfmt(std::cout);
+      output.clear(std::cout.rdstate());
+      output.basic_ios<char>::rdbuf(std::cout.rdbuf());
     }
 
-    logStartTime = chrono::high_resolution_clock::now();
-    t = thread([&]() {
-
+    logStartTime = std::chrono::high_resolution_clock::now();
+    t = std::thread([&]() {
       Report report;
       while (!done) {
         for (int i = 0; i < NUMBER_OF_QUEUES; ++i)
-          while (queue[i].pop(report))  // XXX change to if to avoid starvation?
+          while (Log::queue[i].pop(
+              report)) // XXX change to if to avoid starvation?
             priority.push(report);
 
-        double now = chrono::duration_cast<chrono::duration<double>>(
-            chrono::high_resolution_clock::now() - logStartTime).count();
+        double now =
+            std::chrono::duration_cast<std::chrono::duration<double>>(
+                std::chrono::high_resolution_clock::now() - logStartTime)
+                .count();
         while ((!priority.empty()) && ((now - priority.top().time) > 0.5)) {
-          output << priority.top().text << endl;
+          output << priority.top().text << std::endl;
           priority.pop();
         }
 
-        usleep(WAIT_MICROSECONDS);
+        std::this_thread::sleep_for(
+            std::chrono::microseconds(WAIT_MICROSECONDS));
       }
 
       for (int i = 0; i < NUMBER_OF_QUEUES; ++i)
-        while (queue[i].pop(report))
+        while (Log::queue[i].pop(report))
           priority.push(report);
 
       while (!priority.empty()) {
-        output << priority.top().text << endl;
+        output << priority.top().text << std::endl;
         priority.pop();
       }
     });
@@ -141,10 +149,11 @@ struct Log {
     output.close();
   }
 
-  void report(std::thread::id tid, const char* format, ...) {
+  void report(std::thread::id tid, const char *format, ...) {
     Report report;
-    report.time = chrono::duration_cast<chrono::duration<double>>(
-        chrono::high_resolution_clock::now() - logStartTime).count();
+    report.time = std::chrono::duration_cast<std::chrono::duration<double>>(
+                      std::chrono::high_resolution_clock::now() - logStartTime)
+                      .count();
 
     if (queueThreadMap.find(tid) == queueThreadMap.end()) {
 
@@ -173,6 +182,6 @@ struct Log {
   }
 };
 
-}  // cuttlebone
+} // namespace cuttlebone
 
 #endif
