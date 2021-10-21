@@ -1,22 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
-#include "lo/lo.h"
+#ifndef _WINDOWS
+#include <unistd.h> // sleep()
+#else
+
+#endif
+
 #include "common.hpp"
+#include "lo/lo.h"
 
 int main(int argc, char *argv[]) {
   char verstr[200];
-  int  verstr_size;
-  int  major;
-  int  minor;
+  int verstr_size;
+  int major;
+  int minor;
   char extra[200];
-  int  extra_size;
-  int  lt_major;
-  int  lt_minor;
-  int  lt_bug;
+  int extra_size;
+  int lt_major;
+  int lt_minor;
+  int lt_bug;
 
-  lo_version(verstr, 200, &major, &minor, extra, 200, &lt_major, &lt_minor, &lt_bug);
+  lo_version(verstr, 200, &major, &minor, extra, 200, &lt_major, &lt_minor,
+             &lt_bug);
   printf("verion: %s\n", verstr);
 
   Foo foo;

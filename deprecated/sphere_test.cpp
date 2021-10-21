@@ -1,15 +1,19 @@
+#include "Cuttlebone/Broadcaster.hpp"
+#include "Cuttlebone/Checksum.hpp"
 #include "Cuttlebone/Configuration.hpp"
 #include "Cuttlebone/Packet.hpp"
-#include "Cuttlebone/Checksum.hpp"
-#include "Cuttlebone/Time.hpp"
-#include "Cuttlebone/Receiver.hpp"
-#include "Cuttlebone/Broadcaster.hpp"
 #include "Cuttlebone/Queue.hpp"
+#include "Cuttlebone/Receiver.hpp"
+#include "Cuttlebone/Time.hpp"
 
-#include <unistd.h>  // usleep
-#include <iostream>  // cout
-#include <thread>
+#ifndef _WINDOWS
+#include <unistd.h> // sleep()
+#else
+
+#endif
+#include <iostream> // cout
 #include <string.h>
+#include <thread>
 using namespace std;
 /*
 
@@ -183,7 +187,8 @@ struct Renderer {
   }
 };
 
-const char* configuration[] = {"nonce", "gr01", "gr02", "gr03", "gr04", "gr05", "gr06", "gr07", "gr08", "gr09", "gr10", "gr12", "gr13", "gr14", };
+const char* configuration[] = {"nonce", "gr01", "gr02", "gr03", "gr04", "gr05",
+"gr06", "gr07", "gr08", "gr09", "gr10", "gr12", "gr13", "gr14", };
 
 int main(int argc, char* argv[]) {
   HostRole hostRole;

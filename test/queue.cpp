@@ -1,9 +1,12 @@
 #include "Cuttlebone/Queue.hpp"
 
-#include <unistd.h>  // usleep
-#include <iostream>  // cout
-#include <thread>
+#ifndef _WINDOWS
+#include <unistd.h> // usleep
+#else
+#endif
+#include <iostream> // cout
 #include <string.h>
+#include <thread>
 using namespace std;
 
 using namespace cuttlebone;
@@ -20,7 +23,7 @@ struct State {
   void zero() { memset(this, 0, sizeof(State)); }
 };
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   Queue<State> simulateBroadcast, receiveRender;
   thread simulate, broadcast, receive, render;
 
@@ -35,34 +38,34 @@ int main(int argc, char* argv[]) {
     State s;
     s.zero();
     while (waitingToStart)
-      usleep(1000);
+      this_thread::sleep_for(std::chrono::microseconds(1000));
     while (!done) {
       sprintf(s.data, "%u", s.frame);
       if (simulateBroadcast.push(s))
         s.frame++;
       else
         simulateBroadcastWasFull++;
-      usleep(16666);
+      this_thread::sleep_for(std::chrono::microseconds(16666));
     }
   });
 
   broadcast = thread([&]() {
     State s;
     while (waitingToStart)
-      usleep(1000);
+      this_thread::sleep_for(std::chrono::microseconds(1000));
     while (!done) {
       if (simulateBroadcast.pop(s)) {
         // cut s into pieces and broadcast
       } else
         simulateBroadcastWasEmpty++;
-      usleep(16666);
+      this_thread::sleep_for(std::chrono::microseconds(16666));
     }
   });
 
   receive = thread([&]() {
     State s;
     while (waitingToStart)
-      usleep(1000);
+      this_thread::sleep_for(std::chrono::microseconds(1000));
     while (!done) {
       // select with a small timeout
       // receive lots of little pieces of s and assemble
@@ -70,20 +73,20 @@ int main(int argc, char* argv[]) {
       // when s is ready, then push
       if (!receiveRender.push(s))
         receiveRenderWasFull++;
-      usleep(1000);
+      this_thread::sleep_for(std::chrono::microseconds(1000));
     }
   });
 
   render = thread([&]() {
     State s;
     while (waitingToStart)
-      usleep(1000);
+      this_thread::sleep_for(std::chrono::microseconds(1000));
     while (!done) {
       if (receiveRender.pop(s)) {
         // make a pretty picture with s
       } else
         receiveRenderWasEmpty++;
-      usleep(16666);
+      this_thread::sleep_for(std::chrono::microseconds(16666));
     }
   });
 

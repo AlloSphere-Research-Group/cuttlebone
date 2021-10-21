@@ -4,7 +4,11 @@
 #include "Cuttlebone/Cuttlebone.hpp"
 using namespace cuttlebone;
 
-#include <unistd.h>  // usleep
+#ifndef _WINDOWS
+#include <unistd.h> // sleep()
+#else
+
+#endif
 
 struct State {
   int data[100];
@@ -17,7 +21,7 @@ struct App : MakerApp<State> {
 
   // initialize the state in some sane/useful way
   //
-  virtual void init(State& state) {
+  virtual void init(State &state) {
     state.data[0] = 1;
     LOG("init() state.data[0] = %d", state.data[0]);
   }
@@ -25,10 +29,11 @@ struct App : MakerApp<State> {
   // update (modify in place) your state. after this method completes, the
   // updated state is broadcast to your network.
   //
-  virtual void update(State& state) {
+  virtual void update(State &state) {
     LOG("update() state.data[0] = %d", state.data[0]);
     state.data[0]++;
-    usleep(200000);
+
+    this_thread::sleep_for(std::chrono::microseconds(200000));
   }
 };
 

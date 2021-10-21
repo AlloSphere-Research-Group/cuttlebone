@@ -4,8 +4,11 @@
 #include "Cuttlebone/Cuttlebone.hpp"
 using namespace cuttlebone;
 
-#include <unistd.h>  // usleep
+#ifndef _WINDOWS
+#include <unistd.h> // sleep()
+#else
 
+#endif
 // this definition must agree with the definition in the Maker's program.
 //
 struct State {
@@ -16,11 +19,12 @@ struct App : TakerApp<State> {
 
   virtual void started() { LOG("started()"); }
 
-  virtual void got(State& state, double dt, int popCount) {
+  virtual void got(State &state, double dt, int popCount) {
 
     // do nothing if we didn't get a new state
     //
-    if (!popCount) return;
+    if (!popCount)
+      return;
 
     // do something with this new state
     //

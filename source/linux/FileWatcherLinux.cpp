@@ -1,15 +1,19 @@
 #include "Cuttlebone/FileWatcher.hpp"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <sys/types.h>
+#ifndef _WINDOWS
 #include <sys/inotify.h>
-#include <unistd.h>
+#include <unistd.h> // sleep()
+#else
 
-#include <vector>
+#endif
+
 #include <cassert>
 #include <iostream>
+#include <vector>
 using namespace std;
 
 #define EVENT_SIZE (sizeof(struct inotify_event))
@@ -43,7 +47,7 @@ void FileWatcher::watch(const char *filePath) {
 // that->onModify((const char *)clientCallBackInfo);
 
 void FileWatcher::start() {
-  impl->fd = inotify_init();  // XXX inotify_init1(IN_NONBLOCK);
+  impl->fd = inotify_init(); // XXX inotify_init1(IN_NONBLOCK);
 
   impl->wd = inotify_add_watch(impl->fd, impl->paths[0].c_str(),
                                IN_CLOSE_WRITE /* not IN_MODIFY */);
@@ -71,4 +75,4 @@ void FileWatcher::stop() {
   close(impl->fd);
 }
 
-}  // cuttlebone
+} // namespace cuttlebone
