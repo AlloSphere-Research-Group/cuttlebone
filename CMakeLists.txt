@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(cuttlebone)
 
-option(CB_BUILD_EXAMPLES "Build cuttlebone examples" OFF)
+option(CB_BUILD_EXAMPLES "Build cuttlebone examples" ON)
 ## XXX some stuff stopped working after i added this. i think that setting
 ## CMAKE_BUILD_TYPE to "Release" compiles away asserts, which contained some
 ## critical code. stupid, i know.

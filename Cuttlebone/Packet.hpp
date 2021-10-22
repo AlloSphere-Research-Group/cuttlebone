@@ -6,6 +6,7 @@
 #include <string>
 
 #include "Cuttlebone/Log.hpp"
+#include "Cuttlebone/Common.hpp"
 
 namespace cuttlebone {
 
@@ -74,9 +75,9 @@ template <typename STATE, typename PACKET> struct PacketTaker {
       if (part[i] == 0)
         missing++;
     std::string report;
-    report += to_string(missing);
+    report += std::to_string(missing);
     report += " missing from frame ";
-    report += to_string(frameNumber);
+    report += std::to_string(frameNumber);
     LOG("%s", report.c_str());
   }
 

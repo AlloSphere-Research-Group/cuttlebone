@@ -1,6 +1,7 @@
 #ifndef INCLUDE_APP_HPP
 #define INCLUDE_APP_HPP
 
+#include "Cuttlebone/Common.hpp"
 #include "Cuttlebone/AppLoop.hpp"
 #include "Cuttlebone/Broadcaster.hpp"
 #include "Cuttlebone/Log.hpp"

@@ -22,6 +22,8 @@ struct WsInit {
     return v;
   }
 };
+#else
+#define SOCKET int
 #endif
 
 #define SOCKET_ERROR (-1)
