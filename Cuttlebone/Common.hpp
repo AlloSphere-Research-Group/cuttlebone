@@ -6,8 +6,6 @@
 #include <WS2tcpip.h>
 #include <WinSock.h>
 
-#define SOCKET_ERROR -1
-
 #include <stdio.h>
 
 struct WsInit {
@@ -25,5 +23,7 @@ struct WsInit {
   }
 };
 #endif
+
+#define SOCKET_ERROR (-1)
 
 #endif // COMMON_HPP
