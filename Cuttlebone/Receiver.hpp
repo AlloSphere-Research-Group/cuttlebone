@@ -65,8 +65,7 @@ struct Receiver {
 #endif
         } else if (SOCKET_ERROR == ::setsockopt(fileDescriptor, SOL_SOCKET, opt,
                                                 (char *)&to, sizeof(to))) {
-          //          AL_WARN("unable to set timeout on socket at %s:%i: %s",
-          //                  mAddress.c_str(), mPort, errorString());
+          std::cerr << "unable to set timeout on socket: " << std::endl;
         }
       }
 
@@ -133,6 +132,7 @@ struct Receiver {
     int bytesReceived =
         recvfrom(fileDescriptor, (char *)buffer, packetSize, 0, 0, 0);
 #else
+    // For windows timeout is currently set on creation
     int bytesReceived =
         recvfrom(fileDescriptor, (char *)buffer, packetSize, 0, 0, 0);
 //    int bytesReceived = recv(fileDescriptor, (char *)buffer, packetSize, 0);

@@ -97,13 +97,15 @@ public:
       Packet<PACKET_SIZE> p;
       STATE *localState = new STATE;
 
+      float timeout = 0.2f;
+
       while (!done) {
 
         // XXX make this timeout a parameter
-        if (!receiver.receive((unsigned char *)&p, PACKET_SIZE, 0.2f))
+        if (!receiver.receive((unsigned char *)&p, PACKET_SIZE, timeout))
           continue;
 
-      ABORT_FRAME:;
+      ABORT_FRAME:
         // wait until we're at the begining of a frame
         // XXX is this really necessary? reconsider.
         if (p.header.partNumber != 0)
@@ -114,9 +116,9 @@ public:
 
         packetTaker.take(p);
 
-        while (!packetTaker.isComplete()) {
+        while (!packetTaker.isComplete() && !done) {
           // XXX make this timeout a parameter
-          if (receiver.receive((unsigned char *)&p, PACKET_SIZE, 0.2f)) {
+          if (receiver.receive((unsigned char *)&p, PACKET_SIZE, timeout)) {
 
             // XXX the semantics of this method are not clear. make clear.
             if (!packetTaker.take(p)) {

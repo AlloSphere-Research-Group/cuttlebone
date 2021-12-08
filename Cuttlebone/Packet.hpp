@@ -48,7 +48,7 @@ template <typename STATE, typename PACKET> struct PacketMaker {
       packet.header.partSize = PACKET::DATA_SIZE;
 
     // XXX what if this fails? when would it fail? how?
-    memcpy(packet.byte, (void *)((&state) + (partNumber * PACKET::DATA_SIZE)),
+    memcpy(packet.byte, (void *)((char *)(&state) + (partNumber * PACKET::DATA_SIZE)),
            packet.header.partSize);
 
     partNumber++;
@@ -97,7 +97,7 @@ template <typename STATE, typename PACKET> struct PacketTaker {
                     (packet.header.partNumber * PACKET::DATA_SIZE)),
            packet.byte, packet.header.partSize);
 #else
-    memcpy((void *)(&state + (packet.header.partNumber * PACKET::DATA_SIZE)),
+    memcpy((void *)((char *)&state + (packet.header.partNumber * PACKET::DATA_SIZE)),
            packet.byte, packet.header.partSize);
 #endif
 

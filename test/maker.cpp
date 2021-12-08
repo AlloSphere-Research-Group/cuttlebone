@@ -11,8 +11,7 @@ using namespace cuttlebone;
 
 struct State {
   int frame;
-  //  char _[8 * 1024 * 1024 - 4];
-  char _[8];
+  char _[8 * 1024 * 1024 - 4];
 };
 
 int main() {
@@ -27,6 +26,6 @@ int main() {
   while (true) {
     maker.set(*state);
     state->frame++;
-    std::this_thread::sleep_for(std::chrono::microseconds(50000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 }
