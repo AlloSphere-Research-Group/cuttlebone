@@ -50,7 +50,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(library_library ${library_library} ${core_services})
 
     add_library(${PROJECT_NAME} SHARED ${library_source})
-    target_link_libraries(${PROJECT_NAME} rt ${library_library})
+    target_link_libraries(${PROJECT_NAME} ${library_library})
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
