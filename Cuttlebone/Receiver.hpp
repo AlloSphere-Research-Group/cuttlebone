@@ -20,7 +20,7 @@
 
 namespace cuttlebone {
 #ifdef _WINDOWS
-DWORD secToTimeout(float t) {
+static DWORD secToTimeout(float t) {
   return t >= 0. ? DWORD(t * 1000. + 0.5) : 4294967295; // msec
 }
 #endif
