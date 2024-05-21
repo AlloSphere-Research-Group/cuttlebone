@@ -172,11 +172,11 @@ struct Log {
     char buffer[256];
     va_list args;
     va_start(args, format);
-    vsprintf(buffer, format, args);
+    vsnprintf(buffer, 256, format, args);
     // perror(buffer);
     va_end(args);
 
-    sprintf(report.text, "%.8lf|%d|%s", report.time, q, buffer);
+    snprintf(report.text, REPORT_LENGTH, "%.8lf|%d|%s", report.time, q, buffer);
     report.text[REPORT_LENGTH - 1] = '\0';
     queue[q].push(report);
   }
